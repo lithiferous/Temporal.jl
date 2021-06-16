@@ -58,10 +58,12 @@ end
 function tsread(mtx::Matrix{T}; header::Vector{Symbol}=[],
                                 indextype::Type=DateTime,
                                 format::String="yyyy-mm-dd HH:MM:SS")::TS where {T<:Real}
-    k = length(header)
+
+    ts_col = popfirst!(header)
+    fields = isempty(header) ? autocol(1:k) : header
+    k = length(fields)
     n = size(mtx, 1)
 
-    fields = isempty(header) ? autocol(1:k) : header
     arr = zeros(Float64, (n,k))
     idx = fill("", n)::Vector{String}
     for i = 1:n
@@ -73,10 +75,12 @@ function tsread(mtx::Matrix{T}; header::Vector{Symbol}=[],
             idx[i] = date
         end
         for j in 1:k
-            arr[i,j] = mtx[i,j]
+            arr[i,j] = mtx[i,j+1] #increment because first col of mtx is timestamps from idx
         end
     end
     indextype = indextype == UInt64 ? Date : indextype
+    println(length(fields))
+    println(size(arr,2))
     return TS(arr, indextype.(idx, format), fields)
 end
 
