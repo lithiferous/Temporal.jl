@@ -55,6 +55,31 @@ function tsread(file::String; dlm::Char=',', header::Bool=true, eol::Char='\n', 
     return TS(arr, indextype.(idx, format), fields)
 end
 
+function tsread(mtx::Matrix{T}; header::Vector{Symbol}=[],
+                                indextype::Type=DateTime,
+                                format::String="yyyy-mm-dd HH:MM:SS")::TS where {T<:Real}
+    k = length(header)
+    n = size(mtx, 1)
+
+    fields = isempty(header) ? autocol(1:k) : header
+    arr = zeros(Float64, (n,k))
+    idx = fill("", n)::Vector{String}
+    for i = 1:n
+        date = mtx[i,1]
+        if indextype == UInt64
+            dt = unix2datetime(date/1000)
+            idx[i] = Dates.format(dt, "yyyy-mm-dd HH:MM:SS")
+        else
+            idx[i] = date
+        end
+        for j in 1:k
+            arr[i,j] = mtx[i,j]
+        end
+    end
+    indextype = indextype == UInt64 ? Date : indextype
+    return TS(arr, indextype.(idx, format), fields)
+end
+
 """
     tswrite(x::TS,file::String;dlm::Char=',',header::Bool=true,eol::Char='\\n')::Nothing
 
