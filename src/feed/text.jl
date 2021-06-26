@@ -70,7 +70,7 @@ function tsread(mtx::Matrix{T}; header::Vector{Symbol}=[],
         date = mtx[i,1]
         if indextype == UInt64
             dt = unix2datetime(date/1000)
-            idx[i] = Dates.format(dt, "yyyy-mm-dd HH:MM:SS")
+            idx[i] = Dates.format(dt, format)
         else
             idx[i] = date
         end
