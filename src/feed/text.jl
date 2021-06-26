@@ -79,8 +79,6 @@ function tsread(mtx::Matrix{T}; header::Vector{Symbol}=[],
             arr[i,j-1] = mtx[i,j]
         end
     end
-    println(k, n, length(fields))
-    println(arr[1, :])
     indextype = indextype == UInt64 ? Date : indextype
     return TS(arr, indextype.(idx, format), fields)
 end
