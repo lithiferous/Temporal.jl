@@ -51,7 +51,7 @@ function tsread(file::String; dlm::Char=',', header::Bool=true, eol::Char='\n', 
             arr[i,j] = parse(Float64, s[j])
         end
     end
-    indextype = indextype == UInt64 ? Date : indextype
+    indextype = indextype == UInt64 ? DateTime : indextype
     return TS(arr, indextype.(idx, format), fields)
 end
 

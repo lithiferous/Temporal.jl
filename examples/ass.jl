@@ -4,9 +4,13 @@ using Temporal
 # define universe and gather data
 assets = ["DOGE-BUSD"]
 function datasource(asset::String)::TS
-    savedata_path = joinpath("/home/bane/projects/julia/Temporal.jl", "data", "$asset.csv")
+    savedata_path = joinpath("data", "$asset.csv")
     return Temporal.tsread(savedata_path, indextype=UInt64)
+        return Temporal.tsread(savedata_path, indextype=UInt64, format="yyyy-mm-dd HH:MM:SS")
+
 end
+
+df = datasource(assets[end])
 
 save_path(asset::String) = joinpath("/home/bane/projects/julia/Temporal.jl", "data", "$asset.csv")
 
