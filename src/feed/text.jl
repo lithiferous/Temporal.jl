@@ -41,8 +41,8 @@ function tsread(file::String; dlm::Char=',', header::Bool=true, eol::Char='\n', 
     for i = 1:n
         s = Vector{String}(split(csv[i], dlm))
         if indextype == UInt64
-            dt = unix2datetime(parse(Int, popfirst!(s))/1000)
-            idx[i] = Dates.format(dt, "yyyy-mm-dd HH:MM:SS")
+            idx[i] = unix2datetime(parse(Int, popfirst!(s))/1000)
+            #idx[i] = Dates.format(dt, "yyyy-mm-dd HH:MM:SS")
         else
             idx[i] = popfirst!(s)
         end
@@ -51,8 +51,12 @@ function tsread(file::String; dlm::Char=',', header::Bool=true, eol::Char='\n', 
             arr[i,j] = parse(Float64, s[j])
         end
     end
-    indextype = indextype == UInt64 ? DateTime : indextype
-    return TS(arr, indextype.(idx, format), fields)
+    if indextype == UInt64
+        idx = Dates.format(idx, format)
+    else
+        idx = indextype.(idx, format)
+    end
+    return TS(arr, idx, fields)
 end
 
 function tsread(mtx::Matrix{T}; header::Vector{Symbol}=[],

@@ -5,8 +5,7 @@ using Temporal
 assets = ["DOGE-BUSD"]
 function datasource(asset::String)::TS
     savedata_path = joinpath("data", "$asset.csv")
-    return Temporal.tsread(savedata_path, indextype=UInt64)
-        return Temporal.tsread(savedata_path, indextype=UInt64, format="yyyy-mm-dd HH:MM:SS")
+    return Temporal.tsread(savedata_path, indextype=UInt64, format="yyyy-mm-dd HH:MM:SS")
 
 end
 
@@ -52,4 +51,3 @@ for i = 1:n
     end
 end
     return TS(arr, indextype.(idx, format), fields)
-
