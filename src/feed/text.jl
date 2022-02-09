@@ -57,14 +57,12 @@ end
 function tsread(mtx::Matrix{T}; header::Vector{Symbol}=[],
                                 indextype::Type=DateTime,
                                 format::String="yyyy-mm-dd HH:MM:SS")::TS where {T<:Real}
-    sz = size(mtx)
-    n = sz[1]
-    #open time col dropped because ts is appended separately
-    k = sz[2] - 1
     popfirst!(header)
+    n = size(mtx, 1)
+    k = size(mtx, 2)
     fields = isempty(header) ? autocol(1:k) : header
 
-    arr = zeros(Float64, (n,k))
+    arr = zeros(Float64, (n,k-1))
     idx = fill("", n)::Vector{String}
     for i = 1:n
         date = mtx[i,1]
@@ -78,36 +76,9 @@ function tsread(mtx::Matrix{T}; header::Vector{Symbol}=[],
             arr[i,j-1] = mtx[i,j]
         end
     end
-    indextype = indextype == UInt64 ? DateTime : indextype
+    indextype = indextype == UInt64 ? Date : indextype
     return TS(arr, indextype.(idx, format), fields)
 end
-
-#function tsread(mtx::Matrix{T}; header::Vector{Symbol}=[],
-#                                indextype::Type=DateTime,
-#                                format::String="yyyy-mm-dd HH:MM:SS")::TS where {T<:Real}
-#
-#    ts_col = popfirst!(header)
-#    fields = isempty(header) ? autocol(1:k) : header ##error here
-#    k = length(fields)
-#    n = size(mtx, 1)
-#
-#    arr = zeros(Float64, (n,k))
-#    idx = fill("", n)::Vector{String}
-#    for i = 1:n
-#        date = mtx[i,1]
-#        if indextype == UInt64
-#            dt = unix2datetime(date/1000)
-#            idx[i] = Dates.format(dt, format)
-#        else
-#            idx[i] = date
-#        end
-#        for j in 1:k
-#            arr[i,j] = mtx[i,j+1] #increment because first col of mtx is timestamps from idx
-#        end
-#    end
-#    indextype = indextype == UInt64 ? Date : indextype
-#    return TS(arr, indextype.(idx, format), fields)
-#end
 
 """
     tswrite(x::TS,file::String;dlm::Char=',',header::Bool=true,eol::Char='\\n')::Nothing
