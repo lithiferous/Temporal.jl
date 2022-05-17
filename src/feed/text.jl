@@ -56,7 +56,11 @@ end
 
 function tsread(mtx::Matrix{T}; header::Vector{Symbol}=[],
                                 indextype::Type=DateTime,
-                                format::String="yyyy-mm-dd HH:MM:SS")::TS where {T<:Real}
+                                format::String="yyyy-mm-dd HH:MM:SS",
+                                end_dt::String=Nothing)::TS where {T<:Real}
+    if end_dt != Nothing
+        end_dt = Dates.format(end_dt, format)
+    end
     popfirst!(header)
     n = size(mtx, 1)
     k = size(mtx, 2)
@@ -67,8 +71,11 @@ function tsread(mtx::Matrix{T}; header::Vector{Symbol}=[],
     for i = 1:n
         date = mtx[i,1]
         if indextype == UInt64
-            dt = unix2datetime(date/1000)
-            idx[i] = Dates.format(dt, format)
+            dt = Dates.format(unix2datetime(date/1000), format)
+            if end_dt != Nothing && end_dt == dt
+                break
+            end
+            idx[i] = dt
         else
             idx[i] = date
         end
@@ -99,8 +106,8 @@ Optional args:
     tswrite(X, "data.csv")
 
 """
-function tswrite(x::TS, file::String; dlm::Char=',', header::Bool=true, eol::Char='\n')::Nothing
-    outfile = open(file, "w")
+function tswrite(x::TS, file::String; dlm::Char=',', header::Bool=true, eol::Char='\n', mode::String="w")::Nothing
+    outfile = open(file, mode)
     if header
         write(outfile, "Index$(dlm)$(join(x.fields, dlm))$(eol)")
     end
