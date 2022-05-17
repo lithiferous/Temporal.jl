@@ -56,11 +56,7 @@ end
 
 function tsread(mtx::Matrix{T}; header::Vector{Symbol}=[],
                                 indextype::Type=DateTime,
-                                format::String="yyyy-mm-dd HH:MM:SS",
-                                end_dt::String=Nothing)::TS where {T<:Real}
-    if end_dt != Nothing
-        end_dt = Dates.format(end_dt, format)
-    end
+                                format::String="yyyy-mm-dd HH:MM:SS")::TS where {T<:Real}
     popfirst!(header)
     n = size(mtx, 1)
     k = size(mtx, 2)
@@ -71,11 +67,8 @@ function tsread(mtx::Matrix{T}; header::Vector{Symbol}=[],
     for i = 1:n
         date = mtx[i,1]
         if indextype == UInt64
-            dt = Dates.format(unix2datetime(date/1000), format)
-            if end_dt != Nothing && end_dt == dt
-                break
-            end
-            idx[i] = dt
+            dt = unix2datetime(date/1000)
+            idx[i] = Dates.format(dt, format)
         else
             idx[i] = date
         end
